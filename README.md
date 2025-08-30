@@ -1,69 +1,112 @@
-# React + TypeScript + Vite
+# РКСИ Ремастер
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Современная версия сайта Ростовского колледжа связи и информатики (РКСИ) с улучшенным дизайном и функциональностью.
 
-Currently, two official plugins are available:
+## 🚀 Функциональность
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Навигация
+- **Обновленная структура навигации** с актуальными ссылками на разделы сайта РКСИ
+- **Адаптивное меню** для мобильных и десктопных устройств
+- **Умная маршрутизация** - внутренние ссылки используют React Router, внешние открываются в новой вкладке
 
-## Expanding the ESLint configuration
+### Страницы подразделов (SectionDetail)
+- **Автоматическая генерация страниц** для всех подразделов сайта РКСИ
+- **Динамическая загрузка контента** с официального сайта в реальном времени
+- **Извлечение содержимого** тега `<main>` с очисткой от ненужных элементов
+- **Кэширование** для быстрого доступа (1 час)
+- **Красивый интерфейс** с адаптивным дизайном
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Как это работает
+1. Пользователь нажимает на ссылку в навигации (например, "Абитуриенту" > "Приказы о зачислении")
+2. Открывается страница `SectionDetail` с параметром пути (например, `/newstudentlist`)
+3. Компонент автоматически делает запрос к оригинальному сайту РКСИ по этому пути
+4. Извлекается содержимое тега `<main>` из полученного HTML
+5. Контент очищается от скриптов, стилей и навигационных элементов
+6. Данные кэшируются в localStorage для быстрого доступа
+7. Генерируется красивая страница с контентом с официального сайта
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠 Технологии
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **React 19** с TypeScript
+- **React Router** для маршрутизации
+- **Tailwind CSS** для стилизации
+- **Radix UI** компоненты
+- **Lucide React** иконки
+- **Vite** для сборки
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 📁 Структура проекта
+
+```
+src/
+├── components/
+│   ├── app/
+│   │   ├── Header.tsx          # Главная навигация
+│   │   └── Footer.tsx
+│   └── ui/                     # UI компоненты
+├── pages/
+│   ├── home/                   # Главная страница
+│   ├── news/                   # Новости
+│   └── section/
+│       └── SectionDetail.tsx   # Страница подраздела
+├── layouts/
+│   └── DefaultLayout.tsx       # Основной макет
+└── main.tsx                    # Точка входа
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Запуск
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Установка зависимостей
+npm install
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Запуск в режиме разработки
+npm run dev
+
+# Сборка для продакшена
+npm run build
 ```
+
+## 🔧 Конфигурация
+
+### Прокси для CORS
+В `vite.config.ts` настроен прокси для обхода CORS ограничений:
+```javascript
+proxy: {
+  "/rksi": {
+    target: "https://www.rksi.ru",
+    changeOrigin: true,
+    rewrite: (path) => path.replace(/^\/rksi/, ""),
+  },
+}
+```
+
+### Кэширование
+- **Время жизни кэша**: 1 час
+- **Хранилище**: localStorage
+- **Ключи**: `section_${path}` и `section_${path}_timestamp`
+
+## 📱 Адаптивность
+
+- **Мобильное меню** с боковой панелью
+- **Десктопная навигация** с выпадающими меню
+- **Адаптивные карточки** и компоненты
+- **Оптимизированные изображения**
+
+## 🎨 Дизайн
+
+- **Современный минималистичный дизайн**
+- **Градиентные акценты** в навигации
+- **Плавные анимации** и переходы
+- **Темная/светлая тема**
+- **Типографика** с использованием системных шрифтов
+
+## 🔗 Ссылки
+
+- **Оригинальный сайт**: https://rksi.ru
+- **Демо**: http://localhost:3000
+
+## 📝 Примечания
+
+- Страница SectionDetail автоматически генерирует контент для всех подразделов сайта РКСИ
+- Контент загружается с официального сайта в реальном времени
+- Все ссылки ведут на актуальные разделы официального сайта РКСИ

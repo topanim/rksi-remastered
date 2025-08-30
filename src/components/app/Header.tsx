@@ -44,24 +44,30 @@ const navigationData = {
       mainItem: {
         title: "История и традиции",
         description: "Узнайте о богатой истории и традициях РКСИ",
-        href: "https://rksi.ru",
-        isLink: false,
+        href: "/history",
+        isLink: true,
       },
       items: [
-        { title: "Руководство", href: "#" },
-        { title: "Педагогический состав", href: "#" },
-        { title: "Социальное партнёрство", href: "#" },
-        { title: "3D-тур", href: "#" },
-        { title: "Отзывы и благодарности", href: "#" },
-        { title: "Вакансии колледжа", href: "#" },
-        { title: "Конкурентные преимущества", href: "#" },
-        { title: "Международное сотрудничество", href: "#" },
-        { title: "Попечительский совет", href: "#" },
-        { title: "Взаимодействие с ВУЗами", href: "#" },
-        { title: "Научно-исследовательская работа", href: "#" },
-        { title: "Демонстрационный экзамен", href: "#" },
-        { title: "Наставничество в РКСИ", href: "#" },
-        { title: "Национальный проект «Образование»", href: "#" },
+        { title: "3D-тур", href: "/tour" },
+        { title: "История и традиции", href: "/history" },
+        { title: "Отзывы и благодарности", href: "/blago" },
+        {
+          title: "Вакансии колледжа",
+          href: "https://trudvsem.ru/company/1026103275440",
+        },
+        { title: "Конкурентные преимущества", href: "/priority" },
+        { title: "Попечительский совет", href: "/pops" },
+        { title: "Взаимодействие с ВУЗами", href: "/starfsmenntun" },
+        { title: "Демонстрационный экзамен", href: "/demo_exam" },
+        { title: "Международное сотрудничество", href: "/international" },
+        { title: "Научно-исследовательская работа", href: "/nir" },
+        { title: "Наставничество в РКСИ", href: "/mentorship" },
+        {
+          title: "Национальный проект «Образование»",
+          href: "/young_professionals",
+        },
+        { title: "Социальное партнерство", href: "/social" },
+        { title: "Контакты", href: "/contacts" },
       ],
     },
     {
@@ -69,28 +75,37 @@ const navigationData = {
       mainItem: {
         title: "Расписания",
         description: "Актуальные расписания занятий и экзаменов",
-        href: "/student",
+        href: "/schedule",
         isLink: true,
       },
       items: [
-        { title: "Кабинет студента", href: "#" },
-        { title: "Образовательные программы", href: "#" },
-        { title: "Учебные материалы", href: "#" },
-        { title: "Работа РКСИ в режиме online", href: "#" },
-        { title: "Связь с преподавателями", href: "#" },
-        { title: "Движение Первых", href: "#" },
-        { title: "Учебные сборы", href: "#" },
-        { title: "Отделения", href: "#" },
-        { title: "Библиотека колледжа", href: "#" },
-        { title: "Сетевые электронные библиотеки", href: "#" },
-        { title: "Оплата обучения", href: "#" },
-        { title: "Образовательные кредиты", href: "#" },
-        { title: "Как восстановить пропуск?", href: "#" },
-        { title: "Спортивный клуб", href: "#" },
-        { title: "Творческие студии", href: "#" },
-        { title: "Медиастудия РКСИ", href: "#" },
-        { title: "Научное общество", href: "#" },
-        { title: "Производственная практика", href: "#" },
+        { title: "Работа РКСИ в режиме оn-line", href: "/online_edu" },
+        { title: "Расписания", href: "/schedule" },
+        { title: "Образовательные программы", href: "/sveden/education" },
+        { title: "Кабинет студента", href: "/account" },
+        {
+          title: "Связь с преподавателями",
+          href: "https://docs.google.com/spreadsheets/d/1TYqoU3pGHd_u1UWjHV5TaHKOZr_d3nYG1MG0cVKye3Q/view#gid=1185239252",
+        },
+        { title: "Движение Первых", href: "/movement_of_the_first" },
+        { title: "Учебные сборы", href: "/military" },
+        { title: "Отделения", href: "/faculties" },
+        { title: "Библиотека колледжа", href: "/librery" },
+        { title: "Сетевые электронные библиотеки", href: "/netlibs" },
+        { title: "Оплата обучения", href: "/prise" },
+        { title: "Образовательные кредиты", href: "/loans" },
+        { title: "Полезная информация", href: "/useful_info" },
+        { title: "Как восстановить пропуск?", href: "/access_control" },
+        { title: "Спортивный клуб", href: "/sports_club" },
+        { title: "Творческие студии", href: "/creative_studios" },
+        { title: "Медиастудия РКСИ", href: "//mediapark.rksi.ru/" },
+        { title: "Научное общество", href: "/sno" },
+        { title: "Учебные материалы", href: "/materials" },
+        { title: "Производственная практика", href: "/praktica" },
+        {
+          title: "Памятка обучающемуся по организации целевого обучения",
+          href: "/rksi/doc/targeted/student.pdf",
+        },
       ],
     },
     {
@@ -98,75 +113,228 @@ const navigationData = {
       mainItem: {
         title: "Приём в РКСИ",
         description: "Вся информация для поступающих в колледж",
-        href: "/entrant",
+        href: "/priem",
         isLink: true,
       },
       items: [
-        { title: "Количество заявлений", href: "#" },
-        { title: "Специальности", href: "#" },
-        { title: "Подготовительные курсы", href: "#" },
-        { title: "Кабинет абитуриента", href: "#" },
-        { title: "Приказы о зачислении", href: "#" },
-        { title: "Проходной балл", href: "#" },
-        { title: "Воскресная школа информатики", href: "#" },
-        { title: "Образовательный кредит", href: "#" },
-        { title: "Летний мини-лагерь «IT-фабрика»", href: "#" },
-        { title: "Общежития", href: "#" },
+        { title: "Приeм в РКСИ", href: "/priem" },
+        { title: "Кабинет абитуриента", href: "/cabinet" },
+        {
+          title: "Приказы о зачислении и cписки зачисленных в РКСИ",
+          href: "/newstudentlist",
+        },
+        { title: "Количество заявлений, проходной балл", href: "/countlist" },
+        { title: "Специальности для поступления", href: "/admission" },
+        { title: "Подготовительные курсы", href: "/podkursi" },
+        { title: "Воскресная школа информатики", href: "/ito_school" },
+        { title: "Образовательный кредит", href: "/credit" },
+        {
+          title: "Памятка абитуриенту по организации целевого обучения",
+          href: "/rksi/doc/targeted/abiturient.pdf",
+        },
+        {
+          title: "Летний мини-лагерь «IT-фабрика компьютерных гениев!»",
+          href: "https://it-factory.rksi.ru/",
+        },
+        { title: "Общежития", href: "/dorms" },
       ],
     },
   ],
   additionalSections: [
     {
-      title: "Новости",
+      title: "На базе РКСИ",
       items: [
-        { title: "Лента новостей", href: "/news" },
-        { title: "РКСИ-ТВ", href: "#" },
-        { title: "Газета «Аська.NET»", href: "#" },
-        { title: "Дни открытых дверей", href: "#" },
-        { title: "СМИ о нас", href: "#" },
+        {
+          title: "Чемпионат по профессиональному мастерству «Профессионалы»",
+          href: "/professionals2025",
+        },
+        {
+          title: "Региональный этап чемпионата высоких технологий",
+          href: "/high_technology2025",
+        },
+        { title: "Хакатон «IT Tech»", href: "/it_tech2024" },
+        {
+          title: "Региональная олимпиада профессионального мастерства",
+          href: "/olimpiada2025",
+        },
+        {
+          title:
+            "Областной фестиваль «Моя будущая профессия – специалист в области ИТ и телекоммуникаций»",
+          href: "/festival2024",
+        },
+        {
+          title: "День среднего профессионального образования",
+          href: "/spo2023",
+        },
+        {
+          title: "Региональный этап Всероссийского конкурса «Мастер года»",
+          href: "/master_goda2025",
+        },
+        {
+          title: "Патриотический слёт «Вместе за правду»",
+          href: "/together_for_the_truth2024",
+        },
+        {
+          title: "Конкурсы профессионального мастерства педагогов",
+          href: "/concurses",
+        },
+        { title: "IT-фабрика", href: "https://it-factory.rksi.ru/" },
+        { title: "Музей РКСИ", href: "/museum" },
+      ],
+    },
+    {
+      title: "Учебные центры",
+      items: [
+        {
+          title:
+            "Региональный отраслевой ресурсный центр информационных технологий и телекоммуникаций",
+          href: "http://rc.rksi.ru",
+        },
+        { title: "Сетевая академия Cisco", href: "/cisco" },
+        { title: "Сервисная академия Samsung", href: "/samsung" },
+        { title: "Академия Mikrotik", href: "/mikrotik" },
+        {
+          title: "Авторизованный учебный центр «Базальт СПО»",
+          href: "/basealt",
+        },
+        {
+          title: "Авторизованный учебно-практический центр NIKOMAX",
+          href: "/nikomax",
+        },
       ],
     },
     {
       title: "Родителям",
       items: [
-        { title: "Предотвращение вовлечения подростков", href: "#" },
-        { title: "Особенности развития детей", href: "#" },
-        { title: "Как пожаловаться на противоправные материалы?", href: "#" },
-        { title: "Как выявить вовлечённость в «Группы смерти»?", href: "#" },
-        { title: "Безопасность в сети", href: "#" },
-        { title: "Безопасность детей в интернете", href: "#" },
-        { title: "Как распознать мошенничество в сети", href: "#" },
+        {
+          title: "Предотвращение вовлечения подростков в совершение диверсий",
+          href: "/no_diversity",
+        },
+        {
+          title: "Об особенностях развития детей и подростков",
+          href: "https://drive.google.com/file/d/1HgHm69e7rz2sZl0uIRqaHaEoJJoKPpTS/view",
+        },
+        {
+          title: "Как пожаловаться на противоправные материалы?",
+          href: "/rksi/doc/safety/yabedavk.pdf?t=88a0ee53faa2b9ed",
+        },
+        {
+          title: "Как выявить вовлечённость в «Группы смерти»?",
+          href: "/rksi/doc/safety/pamyatka_group.pdf?t=88a0ee53faa2b9ed",
+        },
+        {
+          title: "Безопасность в сети",
+          href: "/rksi/doc/klr/safety3.pdf?t=88a0ee53faa2b9ed",
+        },
+        {
+          title: "Безопасность детей в интернете. Возраст и этапы развития",
+          href: "https://drive.google.com/file/d/14muXoOBL62kvp-_8HSDcMDO-maon8_lU/view?usp=share_link",
+        },
+        {
+          title: "Как распознать мошенничество в сети",
+          href: "https://drive.google.com/file/d/1YTpazPbECEGrpGnBJCDF31nZnYHspQK1/view?usp=share_link",
+        },
       ],
     },
     {
       title: "Преподавателям",
       items: [
-        { title: "Документация", href: "#" },
-        { title: "Классному руководителю", href: "#" },
-        { title: "Кабинет классного руководителя", href: "#" },
-        { title: "Архив расписания", href: "#" },
-        { title: "Наставничество в РКСИ", href: "#" },
-        { title: "Аттестация педагогических работников", href: "#" },
-        { title: "Заказ учебников", href: "#" },
-        { title: "Методические разработки", href: "#" },
+        { title: "Документация", href: "/locals#teacher" },
+        { title: "Классному руководителю", href: "/class" },
+        { title: "Кабинет классного руководителя", href: "/class_leader" },
+        { title: "Архив расписания", href: "/schedule_archive" },
+        { title: "Наставничество в РКСИ", href: "/mentorship" },
+        { title: "Аттестация педагогических работников", href: "/attestation" },
+        {
+          title: "Коронавирус: что делать?",
+          href: "http://rksi.ru/infection#corona",
+        },
+        { title: "Заказ учебников", href: "/librery#zakaz" },
+        {
+          title: "Полезные каналы коммуникации в сфере образования",
+          href: "/good_channels",
+        },
+        { title: "Методические разработки", href: "/methodika" },
       ],
     },
     {
-      title: "Дополнительно",
+      title: "Полезное",
       items: [
-        { title: "Партнёры", href: "#" },
-        { title: "Вакансии", href: "#" },
-        { title: "Контакты", href: "#" },
-        { title: "Карта сайта", href: "#" },
-        { title: "Электронная библиотека", href: "#" },
-        { title: "Виртуальный тур", href: "#" },
-        { title: "Медиацентр", href: "#" },
-        { title: "Обратная связь", href: "#" },
+        { title: "Трудоустройство", href: "/employment" },
+        {
+          title: "Полезные каналы коммуникации в сфере образования",
+          href: "/good_channels",
+        },
+        { title: "Защита детей в цифровой среде", href: "/scam" },
+        { title: "Здоровый образ жизни", href: "/health" },
+        {
+          title: "Оказание бесплатной юридической помощи",
+          href: "http://rksi.ru/doc/gosuslugi/freejustition.doc",
+        },
+        {
+          title: "Как вести себя при атаке БПЛА",
+          href: "/rksi/doc/safety/bpla.pdf",
+        },
+        {
+          title: "Профилактика правонарушений в сети Интернет",
+          href: "https://drive.google.com/file/d/1k51X5lnYyQXdNLBqQ7XNbdimOaoY-6wa/view?usp=sharing",
+        },
+        { title: "Нет наркотикам!", href: "/stop_drags" },
+        { title: "Профилактика инфекций", href: "/infection" },
+        { title: "Безопасность жизнедеятельности", href: "/safety" },
+        { title: "Информационная безопасность", href: "/netsafety" },
+        { title: "Государственные услуги", href: "/gosuslugi" },
+      ],
+    },
+    {
+      title: "Наши победы",
+      items: [
+        { title: "Олимпиады, конкурсы, конференции, выставки", href: "/olimp" },
+        { title: "Знаменитые выпускники", href: "/names" },
+        { title: "Наша гордость", href: "/honor_board" },
+        { title: "Лучшие студенты", href: "/best_students2024" },
+        { title: "Лучшая группа", href: "/best_groop" },
+        { title: "Спортивные победы", href: "/sport" },
+      ],
+    },
+    {
+      title: "Новости",
+      items: [
+        { title: "Новости", href: "/news" },
+        { title: "Дни открытых дверей", href: "/open_days" },
+        { title: "СМИ о нас", href: "/news/smi" },
+        { title: "РКСИ-ТВ", href: "/videonews" },
+        { title: "Газета колледжа «Аська.NET»", href: "/aska-net" },
+      ],
+    },
+    {
+      title: "Мы помним",
+      items: [
+        { title: "Великая Победа", href: "/victory80" },
+        { title: "Лица Героев", href: "/svo" },
+        { title: "Музей РКСИ", href: "/museum" },
+      ],
+    },
+    {
+      title: "Психологическая служба",
+      items: [
+        { title: "Служба доверия", href: "/trust_service" },
+        { title: "Психологи колледжа", href: "/psychological_service" },
+      ],
+    },
+    {
+      title: "Обратная связь",
+      items: [
+        { title: "Контакты", href: "/contacts" },
+        {
+          title: "Обращение (Госуслуги)",
+          href: "https://pos.gosuslugi.ru/form/?opaId=233059&fz59=false",
+        },
       ],
     },
     {
       title: "Выпускнику",
-      items: [{ title: "Трудоустройство", href: "#" }],
+      items: [{ title: "Трудоустройство", href: "/employment" }],
     },
   ],
 };
@@ -185,10 +353,10 @@ const MainSectionItem = ({
     <div className="relative rounded-md p-3 h-full flex flex-col justify-between overflow-hidden group">
       {/* Анимированный градиентный фон */}
       <div className="absolute inset-0 bg-gradient-to-tl from-[#36D1DC] to-[#5B86E5] bg-[length:200%_200%] animate-gradient-x"></div>
-      
+
       {/* Дополнительный слой с переливанием */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer"></div>
-      
+
       {/* Контент */}
       <div className="relative z-10 h-full text-white flex flex-col justify-between">
         <div className="text-sm opacity-70 mb-1">Главное</div>
@@ -197,7 +365,7 @@ const MainSectionItem = ({
           <div className="text-sm opacity-70 mt-2">{item.description}</div>
         </div>
       </div>
-      
+
       {/* Декоративные элементы */}
       <div className="absolute top-2 right-2 w-8 h-8 bg-white/10 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <div className="absolute bottom-2 left-2 w-6 h-6 bg-white/10 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -225,15 +393,31 @@ const AdditionalSectionItem = ({ section }: { section: any }) => (
   <div className="h-min">
     <div className="text-sm text-muted-foreground mb-2">{section.title}</div>
     <div className="flex flex-col">
-      {section.items.map((item: any, index: number) => (
-        <a
-          key={index}
-          className="text-sm rounded-md p-2 hover:bg-accent h-min" // Добавлен h-min
-          href={item.href}
-        >
-          {item.title}
-        </a>
-      ))}
+      {section.items.map((item: any, index: number) => {
+        // Проверяем, является ли ссылка внутренней (начинается с /)
+        const isInternalLink =
+          item.href.startsWith("/") && !item.href.startsWith("//");
+
+        return isInternalLink ? (
+          <Link
+            key={index}
+            className="text-sm rounded-md p-2 hover:bg-accent h-min"
+            to={item.href}
+          >
+            {item.title}
+          </Link>
+        ) : (
+          <a
+            key={index}
+            className="text-sm rounded-md p-2 hover:bg-accent h-min"
+            href={item.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {item.title}
+          </a>
+        );
+      })}
     </div>
   </div>
 );
@@ -256,9 +440,9 @@ export function Header() {
   React.useEffect(() => {
     const root = document.documentElement;
     if (dark) {
-      root.classList.add("dark");
-    } else {
       root.classList.remove("dark");
+    } else {
+      root.classList.add("dark");
     }
   }, [dark]);
 
@@ -297,43 +481,63 @@ export function Header() {
                       <div className="relative rounded-lg p-3 mb-3 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02] overflow-hidden group">
                         {/* Анимированный градиентный фон */}
                         <div className="absolute inset-0 bg-gradient-to-tl from-[#36D1DC] to-[#5B86E5] bg-[length:200%_200%] animate-gradient-x"></div>
-                        
+
                         {/* Дополнительный слой с переливанием */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer"></div>
-                        
+
                         <Link
                           className="relative z-10 block text-white font-medium hover:opacity-90 transition-opacity"
                           to={
-                            section.mainItem.isLink ? section.mainItem.href : "#"
+                            section.mainItem.isLink
+                              ? section.mainItem.href
+                              : "#"
                           }
                         >
                           <div className="text-xs opacity-80 mb-1">Главное</div>
-                          <div className="text-sm">{section.mainItem.title}</div>
+                          <div className="text-sm">
+                            {section.mainItem.title}
+                          </div>
                           <div className="text-xs opacity-80 mt-2">
                             {section.mainItem.description}
                           </div>
                         </Link>
-                        
+
                         {/* Декоративные элементы */}
                         <div className="absolute top-2 right-2 w-6 h-6 bg-white/10 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         <div className="absolute bottom-2 left-2 w-4 h-4 bg-white/10 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                       </div>
                       {/* Остальные подразделы */}
                       <div className="space-y-1 pl-3">
-                        {section.items.map((item, itemIndex) => (
-                          <a
-                            key={itemIndex}
-                            className="block text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md px-2 py-1.5 transition-all duration-200 hover:translate-x-1"
-                            href={item.href}
-                          >
-                            {item.title}
-                          </a>
-                        ))}
+                        {section.items.map((item, itemIndex) => {
+                          const isInternalLink =
+                            item.href.startsWith("/") &&
+                            !item.href.startsWith("//");
+
+                          return isInternalLink ? (
+                            <Link
+                              key={itemIndex}
+                              className="block text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md px-2 py-1.5 transition-all duration-200 hover:translate-x-1"
+                              to={item.href}
+                            >
+                              {item.title}
+                            </Link>
+                          ) : (
+                            <a
+                              key={itemIndex}
+                              className="block text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md px-2 py-1.5 transition-all duration-200 hover:translate-x-1"
+                              href={item.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {item.title}
+                            </a>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
                 ))}
-                
+
                 {/* Разделитель */}
                 <div className="border-t border-border pt-4">
                   <div className="text-xs font-medium text-muted-foreground mb-4 px-1 flex items-center gap-2">
@@ -341,7 +545,7 @@ export function Header() {
                     Дополнительные разделы
                   </div>
                 </div>
-                
+
                 {/* Дополнительные разделы */}
                 {navigationData.additionalSections.map((section, index) => (
                   <div key={index} className="space-y-3">
@@ -354,15 +558,31 @@ export function Header() {
                       {section.title}
                     </div>
                     <div className="space-y-1 pl-3">
-                      {section.items.map((item, itemIndex) => (
-                        <a
-                          key={itemIndex}
-                          className="block text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md px-2 py-1.5 transition-all duration-200 hover:translate-x-1"
-                          href={item.href}
-                        >
-                          {item.title}
-                        </a>
-                      ))}
+                      {section.items.map((item, itemIndex) => {
+                        const isInternalLink =
+                          item.href.startsWith("/") &&
+                          !item.href.startsWith("//");
+
+                        return isInternalLink ? (
+                          <Link
+                            key={itemIndex}
+                            className="block text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md px-2 py-1.5 transition-all duration-200 hover:translate-x-1"
+                            to={item.href}
+                          >
+                            {item.title}
+                          </Link>
+                        ) : (
+                          <a
+                            key={itemIndex}
+                            className="block text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 rounded-md px-2 py-1.5 transition-all duration-200 hover:translate-x-1"
+                            href={item.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {item.title}
+                          </a>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
@@ -389,15 +609,31 @@ export function Header() {
                       isLink={section.mainItem.isLink}
                       className="row-span-4"
                     />
-                    {section.items.map((item, itemIndex) => (
-                      <NavigationMenuLink
-                        key={itemIndex}
-                        href={item.href}
-                        className="rounded-md p-2 hover:bg-accent"
-                      >
-                        {item.title}
-                      </NavigationMenuLink>
-                    ))}
+                    {section.items.map((item, itemIndex) => {
+                      const isInternalLink =
+                        item.href.startsWith("/") &&
+                        !item.href.startsWith("//");
+
+                      return isInternalLink ? (
+                        <Link
+                          key={itemIndex}
+                          to={item.href}
+                          className="rounded-md p-2 hover:bg-accent block"
+                        >
+                          {item.title}
+                        </Link>
+                      ) : (
+                        <a
+                          key={itemIndex}
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-md p-2 hover:bg-accent block"
+                        >
+                          {item.title}
+                        </a>
+                      );
+                    })}
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
@@ -407,11 +643,9 @@ export function Header() {
             <NavigationMenuItem>
               <NavigationMenuTrigger>Ещё</NavigationMenuTrigger>
               <NavigationMenuContent>
-                <div className="grid grid-cols-2 auto-rows-min gap-4 p-4 w-[600px]">
+                <div className="grid grid-cols-3 auto-rows-min gap-2 p-4 w-[720px]">
                   {navigationData.additionalSections.map((section, index) => (
-                    <div key={index} className="break-inside-avoid">
-                      {" "}
-                      {/* Важно! */}
+                    <div key={index}>
                       <AdditionalSectionItem section={section} />
                     </div>
                   ))}

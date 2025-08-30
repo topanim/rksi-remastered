@@ -27,6 +27,32 @@ export type NewsDetail = {
   contentHtml: string
 }
 
+export type SectionDetail = {
+  title: string
+  content: string
+  lastUpdated: string
+  originalUrl: string
+}
+
+// Новые типы для структурированного контента
+export type ContentElement = 
+  | { type: 'paragraph'; content: string }
+  | { type: 'heading'; level: 1 | 2 | 3 | 4 | 5 | 6; content: string; className?: string }
+  | { type: 'bold'; content: string }
+  | { type: 'table'; headers?: string[]; data: string[][] }
+  | { type: 'list'; items: string[]; ordered: boolean }
+  | { type: 'image'; src: string; alt?: string; title?: string }
+  | { type: 'link'; text: string; href: string }
+  | { type: 'divider' }
+  | { type: 'raw'; html: string }
+
+export type StructuredSectionDetail = {
+  title: string
+  content: ContentElement[]
+  lastUpdated: string
+  originalUrl: string
+}
+
 const BASE = "http://192.168.3.52:3000/rksi"
 const ORIGIN = "http://192.168.3.52:3000/rksi"
 
@@ -176,7 +202,7 @@ export class RksiApi {
     // Подзаголовок — первый <b> в main
     const subtitle = mainEl.querySelector("b")?.textContent?.trim()
     // Параграфы — все <p>, не содержащие <img>
-    const paragraphs = Array.from(mainEl.querySelectorAll<HTMLParagraphElement>("p")).filter(p => !p.querySelector("img")).map(p => p.textContent?.trim() || "").filter(Boolean)
+    const paragraphs = Array.from(mainEl.querySelectorAll<HTMLParagraphElement>("p, li")).filter(p => !p.querySelector("img")).map(p => p.textContent?.trim() || "").filter(Boolean)
     // Картинки — внутри .img50
     const images = Array.from(mainEl.querySelectorAll<HTMLImageElement>(".img50 img")).map(img => normalizeUrl(img.getAttribute("src"))!).filter(Boolean)
     // Видеовставки/iframes — соберём любые iframe в main
@@ -220,6 +246,237 @@ export class RksiApi {
   static prefetchNewsPages(currentPage: number, hasPrev: boolean, hasNext: boolean) {
     if (hasPrev) this.getNews(currentPage - 1).catch((e) => console.warn(`⚠️ prefetch prev failed:`, e))
     if (hasNext) this.getNews(currentPage + 1).catch((e) => console.warn(`⚠️ prefetch next failed:`, e))
+  }
+
+  static async getSectionDetail(path: string): Promise<StructuredSectionDetail> {
+    const cacheKey = `section:${path}`
+    const cached = sessionStorage.getItem(cacheKey)
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as StructuredSectionDetail & { timestamp: number }
+        // Кэш действителен 1 час для страниц подразделов
+        if (Date.now() - parsed.timestamp < 60 * 60 * 1000) {
+          console.info(`🗄️ [RksiApi.getSectionDetail] cache hit for path=${path}`)
+          return parsed
+        }
+      } catch {
+        // Если кэш поврежден, удаляем его
+        sessionStorage.removeItem(cacheKey)
+      }
+    }
+
+    console.info(`🌐 [RksiApi.getSectionDetail] fetching path=${path} → ${BASE}/${path}`)
+    const res = await fetchWithTimeout(`${BASE}/${path}`, { timeoutMs: 15000 })
+    console.info(`📥 [RksiApi.getSectionDetail] status=${res.status}`)
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`)
+    }
+
+    const html = await res.text()
+    const doc = new DOMParser().parseFromString(html, "text/html")
+
+    // Извлекаем содержимое тега main
+    const mainElement = doc.querySelector("main")
+    const titleElement = doc.querySelector("title") || doc.querySelector("h1")
+    
+    if (!mainElement) {
+      throw new Error('Не удалось найти содержимое страницы. Возможно, страница не существует или имеет другую структуру.')
+    }
+
+    // Парсим HTML в структурированные данные
+    let structuredContent: ContentElement[]
+    try {
+      structuredContent = this.parseHtmlToStructuredContent(mainElement)
+    } catch (error) {
+      console.warn('Ошибка парсинга HTML, используем fallback:', error)
+      // Fallback: если парсинг не удался, возвращаем raw HTML
+      structuredContent = [{
+        type: 'raw',
+        html: mainElement.innerHTML
+      }]
+    }
+    
+    const payload: StructuredSectionDetail & { timestamp: number } = {
+      title: titleElement?.textContent?.trim() || `Страница: ${path}`,
+      content: structuredContent,
+      lastUpdated: new Date().toISOString(),
+      originalUrl: `https://rksi.ru/${path}`,
+      timestamp: Date.now()
+    }
+
+    console.info(`✅ [RksiApi.getSectionDetail] parsed path=${path} title="${payload.title}" elements=${structuredContent.length}`)
+    try { sessionStorage.setItem(cacheKey, JSON.stringify(payload)) } catch {}
+    return payload
+  }
+
+  private static cleanMainContent(mainElement: Element): string {
+    // Клонируем элемент, чтобы не изменять оригинал
+    const clone = mainElement.cloneNode(true) as Element
+    
+    // Удаляем ненужные элементы
+    const elementsToRemove = clone.querySelectorAll('script, style, nav, header, footer, .sidebar, .navigation')
+    elementsToRemove.forEach(el => el.remove())
+    
+    // Очищаем атрибуты, оставляя только необходимые
+    const allElements = clone.querySelectorAll('*')
+    allElements.forEach(el => {
+      const allowedAttributes = ['href', 'src', 'alt', 'title', 'class']
+      const attributes = Array.from(el.attributes)
+      attributes.forEach(attr => {
+        if (!allowedAttributes.includes(attr.name)) {
+          el.removeAttribute(attr.name)
+        }
+      })
+    })
+    
+    // Нормализация ресурсов в HTML
+    clone.querySelectorAll<HTMLImageElement>("img").forEach((img) => {
+      const src = img.getAttribute("src")
+      const normalized = normalizeUrl(src)
+      if (normalized) img.setAttribute("src", normalized)
+    })
+    clone.querySelectorAll<HTMLAnchorElement>("a").forEach((a) => {
+      const href = a.getAttribute("href")
+      const normalized = normalizeUrl(href)
+      if (normalized) a.setAttribute("href", normalized)
+    })
+    
+    return clone.innerHTML
+  }
+
+  private static parseHtmlToStructuredContent(mainElement: Element): ContentElement[] {
+    const elements: ContentElement[] = []
+    
+    // Проходим по всем дочерним элементам
+    for (const child of Array.from(mainElement.children)) {
+      const tagName = child.tagName.toLowerCase()
+      const className = child.getAttribute('class') || ''
+      
+      switch (tagName) {
+        case 'h1':
+        case 'h2':
+        case 'h3':
+        case 'h4':
+        case 'h5':
+        case 'h6':
+          const level = parseInt(tagName.charAt(1)) as 1 | 2 | 3 | 4 | 5 | 6
+          elements.push({
+            type: 'heading',
+            level,
+            content: child.textContent?.trim() || '',
+            className
+          })
+          break
+          
+        case 'p':
+          // Проверяем, содержит ли параграф только текст или другие элементы
+          if (child.children.length === 0) {
+            const text = child.textContent?.trim()
+            if (text) {
+              elements.push({ type: 'paragraph', content: text })
+            }
+          } else {
+            // Если параграф содержит другие элементы, парсим их рекурсивно
+            const nestedElements = this.parseHtmlToStructuredContent(child)
+            elements.push(...nestedElements)
+          }
+          break
+          
+        case 'b':
+        case 'strong':
+          elements.push({ type: 'bold', content: child.textContent?.trim() || '' })
+          break
+          
+        case 'table':
+          const tableData = this.parseTable(child as HTMLTableElement)
+          if (tableData) {
+            elements.push(tableData)
+          }
+          break
+          
+        case 'ul':
+        case 'ol':
+          const listItems = Array.from(child.querySelectorAll('li')).map(li => li.textContent?.trim() || '')
+          elements.push({
+            type: 'list',
+            items: listItems.filter(Boolean),
+            ordered: tagName === 'ol'
+          })
+          break
+          
+        case 'img':
+          const img = child as HTMLImageElement
+          elements.push({
+            type: 'image',
+            src: img.src,
+            alt: img.alt || undefined,
+            title: img.title || undefined
+          })
+          break
+          
+        case 'a':
+          const link = child as HTMLAnchorElement
+          elements.push({
+            type: 'link',
+            text: link.textContent?.trim() || '',
+            href: link.href
+          })
+          break
+          
+        case 'hr':
+          elements.push({ type: 'divider' })
+          break
+          
+        case 'div':
+          // Рекурсивно парсим содержимое div
+          if (child.children.length > 0) {
+            const nestedElements = this.parseHtmlToStructuredContent(child)
+            elements.push(...nestedElements)
+          } else {
+            const text = child.textContent?.trim()
+            if (text) {
+              elements.push({ type: 'paragraph', content: text })
+            }
+          }
+          break
+          
+        default:
+          // Для неизвестных элементов сохраняем как raw HTML
+          if (child.textContent?.trim()) {
+            elements.push({ type: 'raw', html: child.outerHTML })
+          }
+      }
+    }
+    
+    return elements
+  }
+
+  private static parseTable(tableElement: HTMLTableElement): ContentElement | null {
+    const rows = Array.from(tableElement.querySelectorAll('tr'))
+    if (rows.length === 0) return null
+    
+    const data: string[][] = []
+    let headers: string[] | undefined
+    
+    rows.forEach((row, rowIndex) => {
+      const cells = Array.from(row.querySelectorAll('td, th')).map(cell => 
+        cell.textContent?.trim() || ''
+      )
+      
+      if (rowIndex === 0 && row.querySelector('th')) {
+        // Первая строка содержит заголовки
+        headers = cells
+      } else {
+        data.push(cells)
+      }
+    })
+    
+    return {
+      type: 'table',
+      headers,
+      data
+    }
   }
 }
 

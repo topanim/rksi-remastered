@@ -6,14 +6,19 @@ import DefaultLayout from './layouts/DefaultLayout'
 import HomePage from './pages/home'
 import NewsPage from './pages/news'
 import NewsDetailPage from './pages/news/NewsDetail'
+import SectionDetailPage from './pages/section/SectionDetail'
+import { ErrorBoundary } from './components/app/ErrorBoundary'
 
 const router = createBrowserRouter([
   {
     element: <DefaultLayout />,
+    // errorElement: <ErrorBoundary />,
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/news', element: <NewsPage /> },
       { path: '/news/:id', element: <NewsDetailPage /> },
+      // Маршрут для страниц подразделов
+      { path: '/:section', element: <SectionDetailPage /> },
     ],
   },
 ])
