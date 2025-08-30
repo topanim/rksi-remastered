@@ -48,6 +48,10 @@ export type ContentElement =
 
 export type StructuredSectionDetail = {
   title: string
+  banner?: {
+    src: string
+    alt?: string
+  }
   content: ContentElement[]
   lastUpdated: string
   originalUrl: string
@@ -284,6 +288,17 @@ export class RksiApi {
       throw new Error('Не удалось найти содержимое страницы. Возможно, страница не существует или имеет другую структуру.')
     }
 
+    // Ищем баннер (элемент с классом h1 и изображением внутри)
+    let banner: { src: string; alt?: string } | undefined
+    const bannerElement = doc.querySelector('.h1 img')
+    if (bannerElement) {
+      const img = bannerElement as HTMLImageElement
+      banner = {
+        src: normalizeUrl(img.getAttribute('src')) || img.src,
+        alt: img.alt || undefined
+      }
+    }
+
     // Парсим HTML в структурированные данные
     let structuredContent: ContentElement[]
     try {
@@ -299,6 +314,7 @@ export class RksiApi {
     
     const payload: StructuredSectionDetail & { timestamp: number } = {
       title: titleElement?.textContent?.trim() || `Страница: ${path}`,
+      banner,
       content: structuredContent,
       lastUpdated: new Date().toISOString(),
       originalUrl: `https://rksi.ru/${path}`,
@@ -348,11 +364,82 @@ export class RksiApi {
   private static parseHtmlToStructuredContent(mainElement: Element): ContentElement[] {
     const elements: ContentElement[] = []
     
-    // Проходим по всем дочерним элементам
-    for (const child of Array.from(mainElement.children)) {
-      const tagName = child.tagName.toLowerCase()
-      const className = child.getAttribute('class') || ''
+    // Функция для рекурсивного парсинга
+    const parseElement = (element: Element): void => {
+      const tagName = element.tagName.toLowerCase()
+      const className = element.getAttribute('class') || ''
       
+      // Обрабатываем встроенные элементы (img, a, b, strong) внутри других элементов
+      const inlineElements = element.querySelectorAll('img, a, b, strong')
+      if (inlineElements.length > 0 && tagName !== 'img' && tagName !== 'a' && tagName !== 'b' && tagName !== 'strong') {
+        // Если элемент содержит встроенные элементы, парсим их отдельно
+        let currentText = ''
+        let currentIndex = 0
+        
+        for (const node of Array.from(element.childNodes)) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent?.trim()
+            if (text) {
+              currentText += text + ' '
+            }
+          } else if (node.nodeType === Node.ELEMENT_NODE) {
+            const childElement = node as Element
+            const childTagName = childElement.tagName.toLowerCase()
+            
+            // Добавляем накопленный текст как параграф
+            if (currentText.trim()) {
+              elements.push({ type: 'paragraph', content: currentText.trim() })
+              currentText = ''
+            }
+            
+            // Парсим встроенный элемент
+            switch (childTagName) {
+              case 'img':
+                const img = childElement as HTMLImageElement
+                const imgSrc = normalizeUrl(img.getAttribute('src')) || img.src
+                if (imgSrc) {
+                  elements.push({
+                    type: 'image',
+                    src: imgSrc,
+                    alt: img.alt || undefined,
+                    title: img.title || undefined
+                  })
+                }
+                break
+                
+              case 'a':
+                const link = childElement as HTMLAnchorElement
+                const href = normalizeUrl(link.getAttribute('href')) || link.href
+                if (href) {
+                  elements.push({
+                    type: 'link',
+                    text: link.textContent?.trim() || '',
+                    href: href
+                  })
+                }
+                break
+                
+              case 'b':
+              case 'strong':
+                elements.push({ type: 'bold', content: childElement.textContent?.trim() || '' })
+                break
+                
+              default:
+                // Рекурсивно парсим другие элементы
+                parseElement(childElement)
+            }
+          }
+        }
+        
+        // Добавляем оставшийся текст
+        if (currentText.trim()) {
+          elements.push({ type: 'paragraph', content: currentText.trim() })
+        }
+        
+        return
+      }
+      
+      // Обрабатываем основные элементы
       switch (tagName) {
         case 'h1':
         case 'h2':
@@ -364,32 +451,25 @@ export class RksiApi {
           elements.push({
             type: 'heading',
             level,
-            content: child.textContent?.trim() || '',
+            content: element.textContent?.trim() || '',
             className
           })
           break
           
         case 'p':
-          // Проверяем, содержит ли параграф только текст или другие элементы
-          if (child.children.length === 0) {
-            const text = child.textContent?.trim()
-            if (text) {
-              elements.push({ type: 'paragraph', content: text })
-            }
-          } else {
-            // Если параграф содержит другие элементы, парсим их рекурсивно
-            const nestedElements = this.parseHtmlToStructuredContent(child)
-            elements.push(...nestedElements)
+          const text = element.textContent?.trim()
+          if (text) {
+            elements.push({ type: 'paragraph', content: text })
           }
           break
           
         case 'b':
         case 'strong':
-          elements.push({ type: 'bold', content: child.textContent?.trim() || '' })
+          elements.push({ type: 'bold', content: element.textContent?.trim() || '' })
           break
           
         case 'table':
-          const tableData = this.parseTable(child as HTMLTableElement)
+          const tableData = this.parseTable(element as HTMLTableElement)
           if (tableData) {
             elements.push(tableData)
           }
@@ -397,7 +477,7 @@ export class RksiApi {
           
         case 'ul':
         case 'ol':
-          const listItems = Array.from(child.querySelectorAll('li')).map(li => li.textContent?.trim() || '')
+          const listItems = Array.from(element.querySelectorAll('li')).map(li => li.textContent?.trim() || '')
           elements.push({
             type: 'list',
             items: listItems.filter(Boolean),
@@ -406,22 +486,28 @@ export class RksiApi {
           break
           
         case 'img':
-          const img = child as HTMLImageElement
-          elements.push({
-            type: 'image',
-            src: img.src,
-            alt: img.alt || undefined,
-            title: img.title || undefined
-          })
+          const img = element as HTMLImageElement
+          const imgSrc = normalizeUrl(img.getAttribute('src')) || img.src
+          if (imgSrc) {
+            elements.push({
+              type: 'image',
+              src: imgSrc,
+              alt: img.alt || undefined,
+              title: img.title || undefined
+            })
+          }
           break
           
         case 'a':
-          const link = child as HTMLAnchorElement
-          elements.push({
-            type: 'link',
-            text: link.textContent?.trim() || '',
-            href: link.href
-          })
+          const link = element as HTMLAnchorElement
+          const href = normalizeUrl(link.getAttribute('href')) || link.href
+          if (href) {
+            elements.push({
+              type: 'link',
+              text: link.textContent?.trim() || '',
+              href: href
+            })
+          }
           break
           
         case 'hr':
@@ -430,24 +516,37 @@ export class RksiApi {
           
         case 'div':
           // Рекурсивно парсим содержимое div
-          if (child.children.length > 0) {
-            const nestedElements = this.parseHtmlToStructuredContent(child)
-            elements.push(...nestedElements)
+          if (element.children.length > 0) {
+            parseElement(element)
           } else {
-            const text = child.textContent?.trim()
+            const text = element.textContent?.trim()
             if (text) {
               elements.push({ type: 'paragraph', content: text })
             }
           }
           break
           
+        case 'span':
+        case 'i':
+        case 'em':
+          // Обрабатываем встроенные элементы
+          const spanText = element.textContent?.trim()
+          if (spanText) {
+            elements.push({ type: 'paragraph', content: spanText })
+          }
+          break
+          
         default:
           // Для неизвестных элементов сохраняем как raw HTML
-          if (child.textContent?.trim()) {
-            elements.push({ type: 'raw', html: child.outerHTML })
+          const defaultText = element.textContent?.trim()
+          if (defaultText) {
+            elements.push({ type: 'raw', html: element.outerHTML })
           }
       }
     }
+    
+    // Начинаем парсинг с корневого элемента
+    parseElement(mainElement)
     
     return elements
   }
@@ -460,22 +559,51 @@ export class RksiApi {
     let headers: string[] | undefined
     
     rows.forEach((row, rowIndex) => {
-      const cells = Array.from(row.querySelectorAll('td, th')).map(cell => 
-        cell.textContent?.trim() || ''
-      )
+      const cells = Array.from(row.querySelectorAll('td, th')).map(cell => {
+        // Очищаем текст от лишних пробелов и переносов строк
+        let text = cell.textContent || ''
+        text = text.replace(/\s+/g, ' ').trim()
+        return text
+      })
       
-      if (rowIndex === 0 && row.querySelector('th')) {
-        // Первая строка содержит заголовки
-        headers = cells
+      if (rowIndex === 0) {
+        // Проверяем, содержит ли первая строка заголовки
+        const hasTh = row.querySelector('th')
+        if (hasTh || cells.some(cell => cell.length > 0)) {
+          headers = cells
+        } else {
+          // Если первая строка пустая, считаем её данными
+          data.push(cells)
+        }
       } else {
-        data.push(cells)
+        // Фильтруем пустые строки
+        if (cells.some(cell => cell.length > 0)) {
+          data.push(cells)
+        }
       }
     })
+    
+    // Если заголовки не найдены, создаем автоматические
+    if (!headers && data.length > 0) {
+      const maxCols = Math.max(...data.map(row => row.length))
+      headers = Array.from({ length: maxCols }, (_, i) => `Колонка ${i + 1}`)
+    }
+    
+    // Фильтруем пустые строки и выравниваем количество колонок
+    const filteredData = data
+      .filter(row => row.some(cell => cell.length > 0))
+      .map(row => {
+        const maxCols = Math.max(...data.map(r => r.length))
+        while (row.length < maxCols) {
+          row.push('')
+        }
+        return row
+      })
     
     return {
       type: 'table',
       headers,
-      data
+      data: filteredData
     }
   }
 }

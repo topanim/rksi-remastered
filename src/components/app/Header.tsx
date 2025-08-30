@@ -49,7 +49,6 @@ const navigationData = {
       },
       items: [
         { title: "3D-тур", href: "/tour" },
-        { title: "История и традиции", href: "/history" },
         { title: "Отзывы и благодарности", href: "/blago" },
         {
           title: "Вакансии колледжа",
@@ -59,9 +58,10 @@ const navigationData = {
         { title: "Попечительский совет", href: "/pops" },
         { title: "Взаимодействие с ВУЗами", href: "/starfsmenntun" },
         { title: "Демонстрационный экзамен", href: "/demo_exam" },
+        { title: "Наставничество в РКСИ", href: "/mentorship" },
         { title: "Международное сотрудничество", href: "/international" },
         { title: "Научно-исследовательская работа", href: "/nir" },
-        { title: "Наставничество в РКСИ", href: "/mentorship" },
+        
         {
           title: "Национальный проект «Образование»",
           href: "/young_professionals",
@@ -80,7 +80,6 @@ const navigationData = {
       },
       items: [
         { title: "Работа РКСИ в режиме оn-line", href: "/online_edu" },
-        { title: "Расписания", href: "/schedule" },
         { title: "Образовательные программы", href: "/sveden/education" },
         { title: "Кабинет студента", href: "/account" },
         {
@@ -91,7 +90,6 @@ const navigationData = {
         { title: "Учебные сборы", href: "/military" },
         { title: "Отделения", href: "/faculties" },
         { title: "Библиотека колледжа", href: "/librery" },
-        { title: "Сетевые электронные библиотеки", href: "/netlibs" },
         { title: "Оплата обучения", href: "/prise" },
         { title: "Образовательные кредиты", href: "/loans" },
         { title: "Полезная информация", href: "/useful_info" },
@@ -102,6 +100,7 @@ const navigationData = {
         { title: "Научное общество", href: "/sno" },
         { title: "Учебные материалы", href: "/materials" },
         { title: "Производственная практика", href: "/praktica" },
+        { title: "Сетевые электронные библиотеки", href: "/netlibs" },
         {
           title: "Памятка обучающемуся по организации целевого обучения",
           href: "/rksi/doc/targeted/student.pdf",
@@ -117,15 +116,11 @@ const navigationData = {
         isLink: true,
       },
       items: [
-        { title: "Приeм в РКСИ", href: "/priem" },
         { title: "Кабинет абитуриента", href: "/cabinet" },
-        {
-          title: "Приказы о зачислении и cписки зачисленных в РКСИ",
-          href: "/newstudentlist",
-        },
         { title: "Количество заявлений, проходной балл", href: "/countlist" },
         { title: "Специальности для поступления", href: "/admission" },
         { title: "Подготовительные курсы", href: "/podkursi" },
+        { title: "Общежития", href: "/dorms" },
         { title: "Воскресная школа информатики", href: "/ito_school" },
         { title: "Образовательный кредит", href: "/credit" },
         {
@@ -136,7 +131,10 @@ const navigationData = {
           title: "Летний мини-лагерь «IT-фабрика компьютерных гениев!»",
           href: "https://it-factory.rksi.ru/",
         },
-        { title: "Общежития", href: "/dorms" },
+        {
+          title: "Приказы о зачислении и cписки зачисленных в РКСИ",
+          href: "/newstudentlist",
+        }
       ],
     },
   ],
@@ -603,7 +601,7 @@ export function Header() {
               <NavigationMenuItem key={index}>
                 <NavigationMenuTrigger>{section.title}</NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="grid grid-cols-3 grid-rows-4 gap-2 p-2 w-[800px]">
+                  <div className="grid grid-cols-3 grid-rows-4 gap-2 p-2 w-[820px]">
                     <MainSectionItem
                       item={section.mainItem}
                       isLink={section.mainItem.isLink}

@@ -1,7 +1,7 @@
 import React from "react";
 import type { ContentElement } from "@/api/RksiApi";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
+import { AdvancedTable } from "./AdvancedTable";
 
 interface StructuredContentProps {
   content: ContentElement[];
@@ -12,19 +12,19 @@ export function StructuredContent({ content }: StructuredContentProps) {
     switch (element.type) {
       case 'paragraph':
         return (
-          <p key={index} className="mb-4 text-gray-700 leading-relaxed">
+          <p key={index} className="mb-4 text-foreground leading-relaxed">
             {element.content}
           </p>
         );
         
       case 'heading':
         const headingClasses = {
-          1: "text-4xl font-bold text-gray-900 mb-6",
-          2: "text-3xl font-bold text-gray-900 mb-5",
-          3: "text-2xl font-semibold text-gray-800 mb-4",
-          4: "text-xl font-semibold text-gray-800 mb-3",
-          5: "text-lg font-medium text-gray-700 mb-2",
-          6: "text-base font-medium text-gray-700 mb-2"
+          1: "text-4xl font-bold text-foreground mb-6",
+          2: "text-3xl font-bold text-foreground mb-5",
+          3: "text-2xl font-semibold text-foreground mb-4",
+          4: "text-xl font-semibold text-foreground mb-3",
+          5: "text-lg font-medium text-foreground mb-2",
+          6: "text-base font-medium text-foreground mb-2"
         };
         
         switch (element.level) {
@@ -46,39 +46,19 @@ export function StructuredContent({ content }: StructuredContentProps) {
         
       case 'bold':
         return (
-          <strong key={index} className="font-semibold text-gray-900">
+          <strong key={index} className="font-semibold text-foreground">
             {element.content}
           </strong>
         );
         
       case 'table':
         return (
-          <div key={index} className="mb-6 overflow-x-auto">
-            <Table>
-              {element.headers && (
-                <TableHeader>
-                  <TableRow>
-                    {element.headers.map((header, headerIndex) => (
-                      <TableHead key={headerIndex} className="font-semibold">
-                        {header}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-              )}
-              <TableBody>
-                {element.data.map((row, rowIndex) => (
-                  <TableRow key={rowIndex}>
-                    {row.map((cell, cellIndex) => (
-                      <TableCell key={cellIndex}>
-                        {cell}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <AdvancedTable
+            key={index}
+            headers={element.headers}
+            data={element.data}
+            title="Таблица данных"
+          />
         );
         
       case 'list':
@@ -90,7 +70,7 @@ export function StructuredContent({ content }: StructuredContentProps) {
         return (
           <ListTag key={index} className={listClasses}>
             {element.items.map((item, itemIndex) => (
-              <li key={itemIndex} className="text-gray-700">
+              <li key={itemIndex} className="text-foreground">
                 {item}
               </li>
             ))}
@@ -99,18 +79,30 @@ export function StructuredContent({ content }: StructuredContentProps) {
         
       case 'image':
         return (
-          <div key={index} className="mb-6 text-center">
-            <img
-              src={element.src}
-              alt={element.alt || element.title || ''}
-              title={element.title}
-              className="max-w-full h-auto rounded-lg shadow-md mx-auto"
-            />
-            {(element.alt || element.title) && (
-              <p className="mt-2 text-sm text-gray-600 italic">
-                {element.alt || element.title}
-              </p>
-            )}
+          <div key={index} className="mb-8">
+            <div className="bg-card rounded-lg border overflow-hidden shadow-sm">
+              <img
+                src={element.src}
+                alt={element.alt || element.title || ''}
+                title={element.title}
+                className="w-full h-auto max-h-96 object-contain bg-background"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                  const parent = target.parentElement
+                  if (parent) {
+                    parent.innerHTML = '<div class="p-8 text-center text-muted-foreground">Изображение не загружено</div>'
+                  }
+                }}
+              />
+              {(element.alt || element.title) && (
+                <div className="p-3 bg-muted/30 border-t">
+                  <p className="text-sm text-muted-foreground text-center">
+                    {element.alt || element.title}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         );
         
@@ -121,7 +113,7 @@ export function StructuredContent({ content }: StructuredContentProps) {
             href={element.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline"
+            className="text-primary hover:text-primary/80 underline"
           >
             {element.text}
           </a>
