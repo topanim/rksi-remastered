@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { useRef, useEffect } from "react"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -7,9 +8,9 @@ export function cn(...inputs: ClassValue[]) {
 
 // Хук для анимации появления элементов при скролле
 export function useScrollAnimation() {
-  const observerRef = React.useRef<IntersectionObserver | null>(null)
+  const observerRef = useRef<IntersectionObserver | null>(null)
   
-  React.useEffect(() => {
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

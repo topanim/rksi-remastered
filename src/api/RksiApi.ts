@@ -36,15 +36,9 @@ export type SectionDetail = {
 
 // Новые типы для структурированного контента
 export type ContentElement = 
-  | { type: 'paragraph'; content: string }
-  | { type: 'heading'; level: 1 | 2 | 3 | 4 | 5 | 6; content: string; className?: string }
-  | { type: 'bold'; content: string }
-  | { type: 'table'; headers?: string[]; data: string[][] }
-  | { type: 'list'; items: string[]; ordered: boolean }
-  | { type: 'image'; src: string; alt?: string; title?: string }
-  | { type: 'link'; text: string; href: string }
-  | { type: 'divider' }
-  | { type: 'raw'; html: string }
+  | { type: 'html'; content: string }
+  | { type: 'table'; headers: string[]; data: string[][] }
+  | { type: 'news'; items: NewsItem[] }
 
 export type StructuredSectionDetail = {
   title: string
@@ -57,13 +51,13 @@ export type StructuredSectionDetail = {
   originalUrl: string
 }
 
-const BASE = "http://192.168.3.52:3000/rksi"
-const ORIGIN = "http://192.168.3.52:3000/rksi"
+const BASE = "https://vilely-immortal-damselfly.cloudpub.ru/rksi"
+const ORIGIN = "https://vilely-immortal-damselfly.cloudpub.ru/rksi"
 
 function normalizeUrl(url?: string | null): string | undefined {
   if (!url) return undefined
   if (url.startsWith("http")) return url
-  if (url.startsWith("//")) return `https:${url}`
+  if (url.startsWith("//")) return `${ORIGIN}${url.replace('//', '/')}`
   if (url.startsWith("/")) return `${ORIGIN}${url}`
   return `${ORIGIN}/${url}`
 }
@@ -305,10 +299,10 @@ export class RksiApi {
       structuredContent = this.parseHtmlToStructuredContent(mainElement)
     } catch (error) {
       console.warn('Ошибка парсинга HTML, используем fallback:', error)
-      // Fallback: если парсинг не удался, возвращаем raw HTML
+      // Fallback: если парсинг не удался, возвращаем HTML
       structuredContent = [{
-        type: 'raw',
-        html: mainElement.innerHTML
+        type: 'html',
+        content: mainElement.innerHTML
       }]
     }
     
@@ -326,227 +320,151 @@ export class RksiApi {
     return payload
   }
 
-  private static cleanMainContent(mainElement: Element): string {
-    // Клонируем элемент, чтобы не изменять оригинал
-    const clone = mainElement.cloneNode(true) as Element
-    
-    // Удаляем ненужные элементы
-    const elementsToRemove = clone.querySelectorAll('script, style, nav, header, footer, .sidebar, .navigation')
-    elementsToRemove.forEach(el => el.remove())
-    
-    // Очищаем атрибуты, оставляя только необходимые
-    const allElements = clone.querySelectorAll('*')
-    allElements.forEach(el => {
-      const allowedAttributes = ['href', 'src', 'alt', 'title', 'class']
-      const attributes = Array.from(el.attributes)
-      attributes.forEach(attr => {
-        if (!allowedAttributes.includes(attr.name)) {
-          el.removeAttribute(attr.name)
-        }
-      })
-    })
-    
-    // Нормализация ресурсов в HTML
-    clone.querySelectorAll<HTMLImageElement>("img").forEach((img) => {
-      const src = img.getAttribute("src")
-      const normalized = normalizeUrl(src)
-      if (normalized) img.setAttribute("src", normalized)
-    })
-    clone.querySelectorAll<HTMLAnchorElement>("a").forEach((a) => {
-      const href = a.getAttribute("href")
-      const normalized = normalizeUrl(href)
-      if (normalized) a.setAttribute("href", normalized)
-    })
-    
-    return clone.innerHTML
-  }
+
 
   private static parseHtmlToStructuredContent(mainElement: Element): ContentElement[] {
     const elements: ContentElement[] = []
     
-    // Функция для рекурсивного парсинга
-    const parseElement = (element: Element): void => {
-      const tagName = element.tagName.toLowerCase()
-      const className = element.getAttribute('class') || ''
-      
-      // Обрабатываем встроенные элементы (img, a, b, strong) внутри других элементов
-      const inlineElements = element.querySelectorAll('img, a, b, strong')
-      if (inlineElements.length > 0 && tagName !== 'img' && tagName !== 'a' && tagName !== 'b' && tagName !== 'strong') {
-        // Если элемент содержит встроенные элементы, парсим их отдельно
-        let currentText = ''
-        let currentIndex = 0
+    // Функция для рекурсивного обхода и разделения контента
+    const processNode = (node: Node): void => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element
+        const tagName = element.tagName.toLowerCase()
+        const className = element.getAttribute('class') || ''
         
-        for (const node of Array.from(element.childNodes)) {
-          if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent?.trim()
-            if (text) {
-              currentText += text + ' '
-            }
-          } else if (node.nodeType === Node.ELEMENT_NODE) {
-            const childElement = node as Element
-            const childTagName = childElement.tagName.toLowerCase()
+        // Проверяем на flexbox с новостями
+        if (className.includes('flexbox')) {
+          const newsElements = element.querySelectorAll('.flexnews')
+          if (newsElements.length > 0) {
+            const newsItems: NewsItem[] = []
+            newsElements.forEach((el) => {
+              const link = el.querySelector<HTMLAnchorElement>("a[href*='/news/n_']")
+              if (!link) return
+              const rawHref = link.getAttribute("href") || ""
+              const hrefPath = rawHref.startsWith("http") ? rawHref : new URL(rawHref, ORIGIN).pathname
+              const idMatch = hrefPath.match(/n_(\d+)/)
+              const id = idMatch ? Number(idMatch[1]) : NaN
+              if (!id) return
+
+              const title = (el.querySelector("h4")?.textContent || link.textContent || "").trim()
+              const date = (el.querySelector(".smalli")?.textContent || "").trim()
+              const img = normalizeUrl(el.querySelector<HTMLImageElement>("img")?.getAttribute("src"))
+
+              let excerpt = ""
+              const blocks = el.querySelectorAll<HTMLElement>(":scope > div")
+              if (blocks.length > 0) {
+                const contentDiv = blocks[blocks.length - 1]
+                contentDiv.querySelectorAll("h4, a, span.smalli, br").forEach((n) => n.remove())
+                excerpt = (contentDiv.textContent || "").replace(/\s+/g, " ").trim()
+              }
+
+              newsItems.push({ id, title, href: hrefPath, date, image: img, excerpt })
+            })
             
-            // Добавляем накопленный текст как параграф
-            if (currentText.trim()) {
-              elements.push({ type: 'paragraph', content: currentText.trim() })
-              currentText = ''
-            }
-            
-            // Парсим встроенный элемент
-            switch (childTagName) {
-              case 'img':
-                const img = childElement as HTMLImageElement
-                const imgSrc = normalizeUrl(img.getAttribute('src')) || img.src
-                if (imgSrc) {
-                  elements.push({
-                    type: 'image',
-                    src: imgSrc,
-                    alt: img.alt || undefined,
-                    title: img.title || undefined
-                  })
-                }
-                break
-                
-              case 'a':
-                const link = childElement as HTMLAnchorElement
-                const href = normalizeUrl(link.getAttribute('href')) || link.href
-                if (href) {
-                  elements.push({
-                    type: 'link',
-                    text: link.textContent?.trim() || '',
-                    href: href
-                  })
-                }
-                break
-                
-              case 'b':
-              case 'strong':
-                elements.push({ type: 'bold', content: childElement.textContent?.trim() || '' })
-                break
-                
-              default:
-                // Рекурсивно парсим другие элементы
-                parseElement(childElement)
+            if (newsItems.length > 0) {
+              elements.push({ type: 'news', items: newsItems })
+              return // Не обрабатываем дочерние элементы этого узла
             }
           }
         }
         
-        // Добавляем оставшийся текст
-        if (currentText.trim()) {
-          elements.push({ type: 'paragraph', content: currentText.trim() })
-        }
-        
-        return
-      }
-      
-      // Обрабатываем основные элементы
-      switch (tagName) {
-        case 'h1':
-        case 'h2':
-        case 'h3':
-        case 'h4':
-        case 'h5':
-        case 'h6':
-          const level = parseInt(tagName.charAt(1)) as 1 | 2 | 3 | 4 | 5 | 6
-          elements.push({
-            type: 'heading',
-            level,
-            content: element.textContent?.trim() || '',
-            className
-          })
-          break
-          
-        case 'p':
-          const text = element.textContent?.trim()
-          if (text) {
-            elements.push({ type: 'paragraph', content: text })
-          }
-          break
-          
-        case 'b':
-        case 'strong':
-          elements.push({ type: 'bold', content: element.textContent?.trim() || '' })
-          break
-          
-        case 'table':
+        // Проверяем на таблицы
+        if (tagName === 'table') {
           const tableData = this.parseTable(element as HTMLTableElement)
           if (tableData) {
             elements.push(tableData)
+            return // Не обрабатываем дочерние элементы этого узла
           }
-          break
-          
-        case 'ul':
-        case 'ol':
-          const listItems = Array.from(element.querySelectorAll('li')).map(li => li.textContent?.trim() || '')
-          elements.push({
-            type: 'list',
-            items: listItems.filter(Boolean),
-            ordered: tagName === 'ol'
-          })
-          break
-          
-        case 'img':
-          const img = element as HTMLImageElement
-          const imgSrc = normalizeUrl(img.getAttribute('src')) || img.src
-          if (imgSrc) {
-            elements.push({
-              type: 'image',
-              src: imgSrc,
-              alt: img.alt || undefined,
-              title: img.title || undefined
-            })
-          }
-          break
-          
-        case 'a':
-          const link = element as HTMLAnchorElement
-          const href = normalizeUrl(link.getAttribute('href')) || link.href
-          if (href) {
-            elements.push({
-              type: 'link',
-              text: link.textContent?.trim() || '',
-              href: href
-            })
-          }
-          break
-          
-        case 'hr':
-          elements.push({ type: 'divider' })
-          break
-          
-        case 'div':
-          // Рекурсивно парсим содержимое div
-          if (element.children.length > 0) {
-            parseElement(element)
-          } else {
-            const text = element.textContent?.trim()
-            if (text) {
-              elements.push({ type: 'paragraph', content: text })
-            }
-          }
-          break
-          
-        case 'span':
-        case 'i':
-        case 'em':
-          // Обрабатываем встроенные элементы
-          const spanText = element.textContent?.trim()
-          if (spanText) {
-            elements.push({ type: 'paragraph', content: spanText })
-          }
-          break
-          
-        default:
-          // Для неизвестных элементов сохраняем как raw HTML
-          const defaultText = element.textContent?.trim()
-          if (defaultText) {
-            elements.push({ type: 'raw', html: element.outerHTML })
-          }
+        }
+        
+        // Для всех остальных элементов рекурсивно обрабатываем дочерние узлы
+        Array.from(element.childNodes).forEach(processNode)
       }
     }
     
-    // Начинаем парсинг с корневого элемента
-    parseElement(mainElement)
+    // Собираем HTML контент между специальными элементами
+    const collectHtmlContent = (): void => {
+      let currentHtml = ''
+      
+      const walkNodes = (node: Node): void => {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const element = node as Element
+          const tagName = element.tagName.toLowerCase()
+          const className = element.getAttribute('class') || ''
+          
+          // Если это специальный элемент, сохраняем накопленный HTML и добавляем специальный элемент
+          if (className.includes('flexbox') || tagName === 'table') {
+            if (currentHtml.trim()) {
+              elements.push({ type: 'html', content: currentHtml.trim() })
+              currentHtml = ''
+            }
+            
+            // Обрабатываем специальный элемент
+            if (className.includes('flexbox')) {
+              const newsElements = element.querySelectorAll('.flexnews')
+              if (newsElements.length > 0) {
+                const newsItems: NewsItem[] = []
+                newsElements.forEach((el) => {
+                  const link = el.querySelector<HTMLAnchorElement>("a[href*='/news/n_']")
+                  if (!link) return
+                  const rawHref = link.getAttribute("href") || ""
+                  const hrefPath = rawHref.startsWith("http") ? rawHref : new URL(rawHref, ORIGIN).pathname
+                  const idMatch = hrefPath.match(/n_(\d+)/)
+                  const id = idMatch ? Number(idMatch[1]) : NaN
+                  if (!id) return
+
+                  const title = (el.querySelector("h4")?.textContent || link.textContent || "").trim()
+                  const date = (el.querySelector(".smalli")?.textContent || "").trim()
+                  const img = normalizeUrl(el.querySelector<HTMLImageElement>("img")?.getAttribute("src"))
+
+                  let excerpt = ""
+                  const blocks = el.querySelectorAll<HTMLElement>(":scope > div")
+                  if (blocks.length > 0) {
+                    const contentDiv = blocks[blocks.length - 1]
+                    contentDiv.querySelectorAll("h4, a, span.smalli, br").forEach((n) => n.remove())
+                    excerpt = (contentDiv.textContent || "").replace(/\s+/g, " ").trim()
+                  }
+
+                  newsItems.push({ id, title, href: hrefPath, date, image: img, excerpt })
+                })
+                
+                if (newsItems.length > 0) {
+                  elements.push({ type: 'news', items: newsItems })
+                  return
+                }
+              }
+            }
+            
+            if (tagName === 'table') {
+              const tableData = this.parseTable(element as HTMLTableElement)
+              if (tableData) {
+                elements.push(tableData)
+                return
+              }
+            }
+          }
+          
+          // Для обычных элементов добавляем их HTML к накопленному контенту
+          currentHtml += element.outerHTML
+        } else if (node.nodeType === Node.TEXT_NODE) {
+          // Текстовые узлы добавляем как есть
+          const text = node.textContent || ''
+          if (text.trim()) {
+            currentHtml += text
+          }
+        }
+      }
+      
+      // Проходим по всем дочерним узлам main элемента
+      Array.from(mainElement.childNodes).forEach(walkNodes)
+      
+      // Добавляем оставшийся HTML контент
+      if (currentHtml.trim()) {
+        elements.push({ type: 'html', content: currentHtml.trim() })
+      }
+    }
+    
+    collectHtmlContent()
     
     return elements
   }
@@ -602,10 +520,12 @@ export class RksiApi {
     
     return {
       type: 'table',
-      headers,
+      headers: headers || [],
       data: filteredData
     }
   }
+
+
 }
 
 

@@ -4,8 +4,7 @@ import {
   NavigationMenuList,
   NavigationMenuItem,
   NavigationMenuTrigger,
-  NavigationMenuContent,
-  NavigationMenuLink,
+  NavigationMenuContent
 } from "@/components/ui/navigation-menu";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
@@ -438,9 +437,9 @@ export function Header() {
   React.useEffect(() => {
     const root = document.documentElement;
     if (dark) {
-      root.classList.remove("dark");
-    } else {
       root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
     }
   }, [dark]);
 
@@ -594,7 +593,7 @@ export function Header() {
         </Link>
 
         {/* Десктопная навигация */}
-        <NavigationMenu className="hidden lg:flex">
+        <NavigationMenu className="hidden lg:flex" delayDuration={300}>
           <NavigationMenuList>
             {/* Основные разделы */}
             {navigationData.mainSections.map((section, index) => (

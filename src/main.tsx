@@ -7,7 +7,7 @@ import HomePage from './pages/home'
 import NewsPage from './pages/news'
 import NewsDetailPage from './pages/news/NewsDetail'
 import SectionDetailPage from './pages/section/SectionDetail'
-import { ErrorBoundary } from './components/app/ErrorBoundary'
+
 
 const router = createBrowserRouter([
   {

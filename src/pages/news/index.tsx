@@ -8,8 +8,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { Link, useSearchParams, useLocation } from "react-router-dom"
+import { useSearchParams, useLocation } from "react-router-dom"
 import { Skeleton } from "@/components/ui/skeleton"
+import { NewsCard } from "@/components/app/NewsCard"
 
 export default function NewsPage() {
   const [params, setParams] = useSearchParams()
@@ -173,25 +174,15 @@ export default function NewsPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 transition-opacity duration-200">
             {items.map((n) => (
-              <Link 
+              <NewsCard 
                 key={n.id} 
-                to={`/news/${n.id}`} 
+                item={n}
                 onClick={() => {
                   // Сохраняем позицию скролла и текущую страницу
                   sessionStorage.setItem('newsScrollPosition', window.scrollY.toString())
                   sessionStorage.setItem('newsCurrentPage', page.toString())
                 }}
-                className="rounded-lg border p-4 hover:shadow-sm transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
-              >
-                <div className="aspect-video rounded-md bg-muted mb-3 overflow-hidden">
-                  {n.image ? (
-                    <img src={n.image} alt="" className="w-full h-full object-cover" />
-                  ) : null}
-                </div>
-                <div className="text-xs text-muted-foreground">{n.date}</div>
-                <h3 className="font-medium mt-1">{n.title}</h3>
-                {n.excerpt ? <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{n.excerpt}</p> : null}
-              </Link>
+              />
             ))}
           </div>
           

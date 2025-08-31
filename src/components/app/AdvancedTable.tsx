@@ -25,9 +25,13 @@ export function AdvancedTable({ headers, data, title }: AdvancedTableProps) {
     if (!searchTerm.trim()) return data;
     
     return data.filter(row => 
-      row.some(cell => 
-        cell.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      row.some(cell => {
+        // Создаем временный элемент для извлечения текста из HTML
+        const tempDiv = document.createElement('div')
+        tempDiv.innerHTML = cell
+        const textContent = tempDiv.textContent || tempDiv.innerText || ''
+        return textContent.toLowerCase().includes(searchTerm.toLowerCase())
+      })
     );
   }, [data, searchTerm]);
 
@@ -36,8 +40,17 @@ export function AdvancedTable({ headers, data, title }: AdvancedTableProps) {
     if (sortColumn === null) return filteredData;
     
     return [...filteredData].sort((a, b) => {
-      const aValue = a[sortColumn] || '';
-      const bValue = b[sortColumn] || '';
+      const aCell = a[sortColumn] || '';
+      const bCell = b[sortColumn] || '';
+      
+      // Извлекаем текст из HTML для сортировки
+      const tempDivA = document.createElement('div')
+      tempDivA.innerHTML = aCell
+      const aValue = tempDivA.textContent || tempDivA.innerText || ''
+      
+      const tempDivB = document.createElement('div')
+      tempDivB.innerHTML = bCell
+      const bValue = tempDivB.textContent || tempDivB.innerText || ''
       
       if (sortDirection === 'asc') {
         return aValue.localeCompare(bValue, 'ru');
@@ -185,7 +198,7 @@ export function AdvancedTable({ headers, data, title }: AdvancedTableProps) {
                 >
                   {row.map((cell, cellIndex) => (
                     <TableCell key={cellIndex} className="text-foreground">
-                      {cell}
+                      <div dangerouslySetInnerHTML={{ __html: cell }} />
                     </TableCell>
                   ))}
                 </TableRow>

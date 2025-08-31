@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { RksiApi, type NewsItem } from "@/api/RksiApi"
 import { Skeleton } from "@/components/ui/skeleton"
+import { NewsCard } from "@/components/app/NewsCard"
 
 export default function News() {
   const [items, setItems] = useState<NewsItem[]>([])
@@ -40,14 +41,7 @@ export default function News() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((n) => (
-            <Link key={n.id} to={`/news/${n.id}`} className="rounded-lg border p-4 hover:shadow-sm transition-shadow">
-              <div className="aspect-video rounded-md bg-muted mb-3 overflow-hidden">
-                {n.image ? <img src={n.image} alt="" className="w-full h-full object-cover" /> : null}
-              </div>
-              <div className="text-xs text-muted-foreground">{n.date}</div>
-              <h3 className="font-medium mt-1">{n.title}</h3>
-              {n.excerpt ? <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{n.excerpt}</p> : null}
-            </Link>
+            <NewsCard key={n.id} item={n} />
           ))}
         </div>
       )}

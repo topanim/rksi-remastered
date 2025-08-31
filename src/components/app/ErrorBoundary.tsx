@@ -1,4 +1,4 @@
-import React from "react";
+
 import { useRouteError, Link } from "react-router-dom";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";

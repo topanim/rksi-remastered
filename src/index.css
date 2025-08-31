@@ -151,6 +151,15 @@
   display: inline-block;
 }
 
+/* Стили для flexbox элементов */
+.flexbox {
+  @apply mb-8;
+}
+
+.flexnews {
+  @apply mb-4;
+}
+
 /* Prose styles for section content */
 .prose {
   @apply text-foreground;
@@ -196,6 +205,16 @@
 
 .prose img {
   @apply max-w-full h-auto rounded-lg my-4;
+}
+
+/* Стили для изображений с классом img50 (встроенные) */
+.prose img.img50 {
+  @apply max-w-md max-h-64 object-contain mx-auto;
+}
+
+/* Стили для изображений без класса img50 (полноразмерные) */
+.prose img:not(.img50) {
+  @apply w-full max-h-96 object-contain bg-background rounded-lg border shadow-sm;
 }
 
 .prose table {
